@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:accessibilityHeading="true"
-            android:text="@string/app_name"
+            android:text="@string/home_title"
             android:textAppearance="?attr/textAppearanceHeadlineMedium" />
 
         <TextView
@@ -28,77 +28,74 @@
             android:textAppearance="?attr/textAppearanceBodyLarge" />
 
         <TextView
-            android:id="@+id/homeTicketsHeadingText"
+            android:id="@+id/homeActionHeadingText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:accessibilityHeading="true"
-            android:text="@string/tickets_heading"
+            android:text="@string/home_actions_heading"
             android:textAppearance="?attr/textAppearanceTitleMedium" />
 
-        <TextView
-            android:id="@+id/homeTicketsValueText"
+        <Button
+            android:id="@+id/homeHowToPlayButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            tools:text="0 tickets saved" />
+            android:text="@string/how_to_play" />
 
-        <TextView
-            android:id="@+id/homePrizeShelfText"
+        <Button
+            android:id="@+id/homeGameSettingsButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            tools:text="Prize shelf: 0 prizes" />
+            android:text="@string/game_settings" />
 
-        <TextView
-            android:id="@+id/homeInputModeHeadingText"
+        <Button
+            android:id="@+id/homeCashInButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:accessibilityHeading="true"
-            android:text="@string/input_mode_heading"
-            android:textAppearance="?attr/textAppearanceTitleMedium" />
-
-        <RadioGroup
-            android:id="@+id/inputModeRadioGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
-
-            <RadioButton
-                android:id="@+id/inputModeStandardRadio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="@string/input_mode_standard" />
-
-            <RadioButton
-                android:id="@+id/inputModePerkinsRadio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/input_mode_perkins" />
-
-            <RadioButton
-                android:id="@+id/inputModeBrailleTextRadio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/input_mode_braille_text" />
-
-            <RadioButton
-                android:id="@+id/inputModeBrailleDisplayRadio"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/input_mode_braille_display" />
-        </RadioGroup>
+            android:layout_marginTop="12dp"
+            android:text="@string/cash_in_tickets"
+            tools:text="Cash In Tickets (0)" />
 
         <Button
             android:id="@+id/startGameButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="12dp"
             android:text="@string/start_whacking" />
+
+        <TextView
+            android:id="@+id/homePrizeShelfHeadingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:accessibilityHeading="true"
+            android:text="@string/prize_shelf_heading"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <TextView
+            android:id="@+id/homePrizeShelfText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            tools:text="Prize shelf: 0 prizes" />
+
+        <TextView
+            android:id="@+id/homePrizeShelfEmptyText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/prize_shelf_empty"
+            android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+        <Button
+            android:id="@+id/homeClearPrizeShelfButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/clear_prize_shelf" />
 
     </LinearLayout>
 </ScrollView>

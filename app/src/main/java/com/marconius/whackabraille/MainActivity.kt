@@ -1,5 +1,6 @@
 package com.marconius.whackabraille
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
 import android.view.KeyCharacterMap
@@ -32,14 +33,20 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[GameViewModel::class.java]
         speechEngine = AndroidSpeechEngine(this)
 
-        binding.homeScreen.inputModeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            val inputMode = when (checkedId) {
-                R.id.inputModePerkinsRadio -> InputMode.PERKINS
-                R.id.inputModeBrailleTextRadio -> InputMode.BRAILLE_TEXT
-                R.id.inputModeBrailleDisplayRadio -> InputMode.BRAILLE_DISPLAY
-                else -> InputMode.STANDARD
-            }
-            viewModel.setSelectedInputMode(inputMode)
+        binding.homeScreen.homeHowToPlayButton.setOnClickListener {
+            showComingSoonDialog(R.string.how_to_play_message)
+        }
+
+        binding.homeScreen.homeGameSettingsButton.setOnClickListener {
+            showInputModeDialog()
+        }
+
+        binding.homeScreen.homeCashInButton.setOnClickListener {
+            showComingSoonDialog(R.string.cash_in_tickets_message)
+        }
+
+        binding.homeScreen.homeClearPrizeShelfButton.setOnClickListener {
+            showComingSoonDialog(R.string.clear_prize_shelf_message)
         }
 
         binding.homeScreen.startGameButton.setOnClickListener {
@@ -83,23 +90,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.totalTickets.observe(this) { tickets ->
-            binding.homeScreen.homeTicketsValueText.text = resources.getQuantityString(
-                R.plurals.saved_tickets,
+            binding.homeScreen.homeCashInButton.text = getString(
+                R.string.cash_in_tickets_button,
                 tickets,
+            )
+            binding.homeScreen.homeCashInButton.contentDescription = getString(
+                R.string.cash_in_tickets_accessibility,
                 tickets,
             )
         }
 
         viewModel.selectedInputMode.observe(this) { inputMode ->
-            val checkedId = when (inputMode) {
-                InputMode.PERKINS -> R.id.inputModePerkinsRadio
-                InputMode.BRAILLE_TEXT -> R.id.inputModeBrailleTextRadio
-                InputMode.BRAILLE_DISPLAY -> R.id.inputModeBrailleDisplayRadio
-                InputMode.STANDARD -> R.id.inputModeStandardRadio
-            }
-            if (binding.homeScreen.inputModeRadioGroup.checkedRadioButtonId != checkedId) {
-                binding.homeScreen.inputModeRadioGroup.check(checkedId)
-            }
+            binding.homeScreen.homeGameSettingsButton.contentDescription = getString(
+                R.string.current_input_mode_value,
+                inputMode.label,
+            )
             updateGameplayInputUi(inputMode)
             focusGameplayInputIfNeeded()
         }
@@ -207,6 +212,31 @@ class MainActivity : AppCompatActivity() {
     private fun hideKeyboard() {
         val inputMethodManager = getSystemService(InputMethodManager::class.java)
         inputMethodManager?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+    }
+
+    private fun showInputModeDialog() {
+        val inputModes = InputMode.entries.toTypedArray()
+        val currentIndex = inputModes.indexOf(viewModel.selectedInputMode.value ?: InputMode.STANDARD)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.input_mode_dialog_title)
+            .setSingleChoiceItems(
+                inputModes.map { it.label }.toTypedArray(),
+                currentIndex,
+            ) { dialog, which ->
+                viewModel.setSelectedInputMode(inputModes[which])
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.ok, null)
+            .show()
+    }
+
+    private fun showComingSoonDialog(messageResId: Int) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.coming_soon_title)
+            .setMessage(messageResId)
+            .setPositiveButton(R.string.ok, null)
+            .show()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
