@@ -1,8 +1,30 @@
 <resources>
     <string name="app_name">Whack A Braille!</string>
-    <string name="port_summary">This Android build is being ported for full feature parity with the live iOS and web versions of Whack A Braille. The app will stay TalkBack-first and support external keyboards, Perkins input, TalkBack braille entry, and external braille displays.</string>
-    <string name="status_heading">Port Status</string>
-    <string name="status_message">Starter navigation has been removed. The next steps are porting the Kotlin game core, Android speech and audio services, and the accessible gameplay screens.</string>
-    <string name="input_heading">Planned Input Support</string>
-    <string name="input_summary">Standard keyboard means an external hardware keyboard. Perkins mode maps S, D, F, J, K, and L to dots 3, 2, 1, 4, 5, and 6. Braille text entry will support TalkBack Braille Keyboard, and braille display mode will support translated input, 8-dot braille, and HID-style interaction when available.</string>
+    <string name="home_summary">Listen for the braille target, whack it before it retreats, and stash your tickets for the prize counter. This Android port is being built TalkBack-first and around the real braille workflows you use on a phone.</string>
+    <string name="tickets_heading">Ticket Bank</string>
+    <string name="start_whacking">Start Whacking</string>
+    <string name="gameplay_title">Whack the Braille</string>
+    <string name="current_target_heading">Current Target</string>
+    <string name="braille_entry_heading">Braille Entry</string>
+    <string name="input_placeholder">Input support is the next milestone. This screen is now wired to the real round engine, so targets, timing, and results all come from the shared game core.</string>
+    <string name="finish_round">Finish Round</string>
+    <string name="results_title">Round Results</string>
+    <string name="training_complete_title">Training Complete</string>
+    <string name="return_home">Return Home</string>
+    <string name="lane_waiting">Waiting</string>
+    <string name="score_value">Score: %1$d</string>
+    <string name="streak_value">Current streak: %1$d</string>
+    <string name="tickets_round_value">Tickets this round: %1$d</string>
+    <string name="total_tickets_value">Total tickets: %1$d</string>
+    <string name="results_stats_value">Hits: %1$d   Misses: %2$d   Escapes: %3$d</string>
+
+    <plurals name="saved_tickets">
+        <item quantity="one">%1$d ticket saved</item>
+        <item quantity="other">%1$d tickets saved</item>
+    </plurals>
+
+    <plurals name="prize_shelf_count">
+        <item quantity="one">Prize shelf: %1$d prize</item>
+        <item quantity="other">Prize shelf: %1$d prizes</item>
+    </plurals>
 </resources>
