@@ -52,6 +52,41 @@
             android:textAppearance="?attr/textAppearanceBodyMedium"
             tools:text="Prize shelf: 0 prizes" />
 
+        <TextView
+            android:id="@+id/homeInputModeHeadingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:accessibilityHeading="true"
+            android:text="@string/input_mode_heading"
+            android:textAppearance="?attr/textAppearanceTitleMedium" />
+
+        <RadioGroup
+            android:id="@+id/inputModeRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <RadioButton
+                android:id="@+id/inputModeStandardRadio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/input_mode_standard" />
+
+            <RadioButton
+                android:id="@+id/inputModePerkinsRadio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/input_mode_perkins" />
+
+            <RadioButton
+                android:id="@+id/inputModeBrailleTextRadio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/input_mode_braille_text" />
+        </RadioGroup>
+
         <Button
             android:id="@+id/startGameButton"
             android:layout_width="match_parent"
