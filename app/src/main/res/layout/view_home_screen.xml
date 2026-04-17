@@ -85,6 +85,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/input_mode_braille_text" />
+
+            <RadioButton
+                android:id="@+id/inputModeBrailleDisplayRadio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/input_mode_braille_display" />
         </RadioGroup>
 
         <Button

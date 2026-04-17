@@ -5,6 +5,7 @@ import android.text.InputType
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.marconius.whackabraille.databinding.ActivityMainBinding
@@ -34,6 +35,7 @@ class MainActivity : AppCompatActivity() {
             val inputMode = when (checkedId) {
                 R.id.inputModePerkinsRadio -> InputMode.PERKINS
                 R.id.inputModeBrailleTextRadio -> InputMode.BRAILLE_TEXT
+                R.id.inputModeBrailleDisplayRadio -> InputMode.BRAILLE_DISPLAY
                 else -> InputMode.STANDARD
             }
             viewModel.setSelectedInputMode(inputMode)
@@ -81,6 +83,19 @@ class MainActivity : AppCompatActivity() {
                 tickets,
                 tickets,
             )
+        }
+
+        viewModel.selectedInputMode.observe(this) { inputMode ->
+            val checkedId = when (inputMode) {
+                InputMode.PERKINS -> R.id.inputModePerkinsRadio
+                InputMode.BRAILLE_TEXT -> R.id.inputModeBrailleTextRadio
+                InputMode.BRAILLE_DISPLAY -> R.id.inputModeBrailleDisplayRadio
+                InputMode.STANDARD -> R.id.inputModeStandardRadio
+            }
+            if (binding.homeScreen.inputModeRadioGroup.checkedRadioButtonId != checkedId) {
+                binding.homeScreen.inputModeRadioGroup.check(checkedId)
+            }
+            updateGameplayInputUi(inputMode)
         }
 
         viewModel.prizeShelfCount.observe(this) { count ->
@@ -153,6 +168,47 @@ class MainActivity : AppCompatActivity() {
                 textView.text = getString(R.string.lane_waiting)
                 textView.setBackgroundColor(getColor(android.R.color.darker_gray))
             }
+        }
+
+        binding.gameplayScreen.gameBoardRow.contentDescription =
+            if (activeLane != null) {
+                getString(R.string.game_board_active_lane_description, activeLane + 1, label)
+            } else {
+                getString(R.string.game_board_idle_description, label)
+            }
+    }
+
+    private fun updateGameplayInputUi(inputMode: InputMode) {
+        val usesBufferedTextEntry = inputMode.usesBufferedTextEntry
+
+        binding.gameplayScreen.gameplayInputHeadingText.text = if (usesBufferedTextEntry) {
+            getString(R.string.braille_entry_heading)
+        } else {
+            getString(R.string.keyboard_input_heading)
+        }
+
+        binding.gameplayScreen.gameplayInputPlaceholderText.text = when (inputMode) {
+            InputMode.STANDARD -> getString(R.string.standard_input_placeholder)
+            InputMode.PERKINS -> getString(R.string.perkins_input_placeholder)
+            InputMode.BRAILLE_TEXT -> getString(R.string.braille_text_input_placeholder)
+            InputMode.BRAILLE_DISPLAY -> getString(R.string.braille_display_input_placeholder)
+        }
+
+        binding.gameplayScreen.brailleEntryEditText.isVisible = usesBufferedTextEntry
+        binding.gameplayScreen.submitBrailleEntryButton.isVisible = usesBufferedTextEntry
+
+        binding.gameplayScreen.brailleEntryEditText.hint = when (inputMode) {
+            InputMode.BRAILLE_DISPLAY -> getString(R.string.braille_display_entry_hint)
+            else -> getString(R.string.braille_entry_hint)
+        }
+
+        binding.gameplayScreen.submitBrailleEntryButton.text = when (inputMode) {
+            InputMode.BRAILLE_DISPLAY -> getString(R.string.submit_braille_display_entry)
+            else -> getString(R.string.submit_braille_entry)
+        }
+
+        if (!usesBufferedTextEntry) {
+            binding.gameplayScreen.brailleEntryEditText.text?.clear()
         }
     }
 
