@@ -5,6 +5,7 @@ import android.text.InputType
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -74,6 +75,10 @@ class MainActivity : AppCompatActivity() {
                 speechEngine.stop()
                 perkinsInputTracker.reset()
                 binding.gameplayScreen.brailleEntryEditText.text?.clear()
+                binding.gameplayScreen.brailleEntryEditText.clearFocus()
+                hideKeyboard()
+            } else {
+                focusGameplayInputIfNeeded()
             }
         }
 
@@ -96,6 +101,7 @@ class MainActivity : AppCompatActivity() {
                 binding.homeScreen.inputModeRadioGroup.check(checkedId)
             }
             updateGameplayInputUi(inputMode)
+            focusGameplayInputIfNeeded()
         }
 
         viewModel.prizeShelfCount.observe(this) { count ->
@@ -104,18 +110,6 @@ class MainActivity : AppCompatActivity() {
                 count,
                 count,
             )
-        }
-
-        viewModel.score.observe(this) { score ->
-            binding.gameplayScreen.gameplayScoreText.text = getString(R.string.score_value, score)
-        }
-
-        viewModel.streak.observe(this) { streak ->
-            binding.gameplayScreen.gameplayStreakText.text = getString(R.string.streak_value, streak)
-        }
-
-        viewModel.latestAnnouncement.observe(this) { text ->
-            binding.gameplayScreen.gameplayAnnouncementText.text = text
         }
 
         viewModel.speechAnnouncement.observe(this) { text ->
@@ -169,30 +163,10 @@ class MainActivity : AppCompatActivity() {
                 textView.setBackgroundColor(getColor(android.R.color.darker_gray))
             }
         }
-
-        binding.gameplayScreen.gameBoardRow.contentDescription =
-            if (activeLane != null) {
-                getString(R.string.game_board_active_lane_description, activeLane + 1, label)
-            } else {
-                getString(R.string.game_board_idle_description, label)
-            }
     }
 
     private fun updateGameplayInputUi(inputMode: InputMode) {
         val usesBufferedTextEntry = inputMode.usesBufferedTextEntry
-
-        binding.gameplayScreen.gameplayInputHeadingText.text = if (usesBufferedTextEntry) {
-            getString(R.string.braille_entry_heading)
-        } else {
-            getString(R.string.keyboard_input_heading)
-        }
-
-        binding.gameplayScreen.gameplayInputPlaceholderText.text = when (inputMode) {
-            InputMode.STANDARD -> getString(R.string.standard_input_placeholder)
-            InputMode.PERKINS -> getString(R.string.perkins_input_placeholder)
-            InputMode.BRAILLE_TEXT -> getString(R.string.braille_text_input_placeholder)
-            InputMode.BRAILLE_DISPLAY -> getString(R.string.braille_display_input_placeholder)
-        }
 
         binding.gameplayScreen.brailleEntryEditText.isVisible = usesBufferedTextEntry
         binding.gameplayScreen.submitBrailleEntryButton.isVisible = usesBufferedTextEntry
@@ -210,6 +184,29 @@ class MainActivity : AppCompatActivity() {
         if (!usesBufferedTextEntry) {
             binding.gameplayScreen.brailleEntryEditText.text?.clear()
         }
+    }
+
+    private fun focusGameplayInputIfNeeded() {
+        val inputMode = viewModel.selectedInputMode.value ?: return
+        if (viewModel.screenState.value != GameScreenState.GAMEPLAY || !inputMode.usesBufferedTextEntry) {
+            return
+        }
+
+        val entryField = binding.gameplayScreen.brailleEntryEditText
+        entryField.post {
+            if (viewModel.screenState.value != GameScreenState.GAMEPLAY) {
+                return@post
+            }
+            entryField.requestFocus()
+            entryField.setSelection(entryField.text?.length ?: 0)
+            val inputMethodManager = getSystemService(InputMethodManager::class.java)
+            inputMethodManager?.showSoftInput(entryField, InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
+
+    private fun hideKeyboard() {
+        val inputMethodManager = getSystemService(InputMethodManager::class.java)
+        inputMethodManager?.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
