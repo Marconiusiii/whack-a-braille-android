@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
             binding.gameplayScreen.root.visibility = if (state == GameScreenState.GAMEPLAY) View.VISIBLE else View.GONE
             binding.resultsScreen.root.visibility = if (state == GameScreenState.ROUND_RESULTS) View.VISIBLE else View.GONE
             if (state != GameScreenState.GAMEPLAY) {
+                speechEngine.stop()
                 perkinsInputTracker.reset()
                 binding.gameplayScreen.brailleEntryEditText.text?.clear()
             }
@@ -100,7 +101,12 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.latestAnnouncement.observe(this) { text ->
             binding.gameplayScreen.gameplayAnnouncementText.text = text
-            speechEngine.speak(text)
+        }
+
+        viewModel.speechAnnouncement.observe(this) { text ->
+            if (viewModel.screenState.value == GameScreenState.GAMEPLAY && !text.isNullOrBlank()) {
+                speechEngine.speak(text)
+            }
         }
 
         viewModel.activeLane.observe(this) { lane ->

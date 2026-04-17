@@ -1,6 +1,8 @@
 package com.marconius.whackabraille.ui
 
 import android.app.Application
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,6 +18,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = GameRepository(GamePreferences(application))
     private val gameLoop = GameLoop()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var pendingRoundStart: Runnable? = null
 
     private val _screenState = MutableLiveData(GameScreenState.HOME)
     val screenState: LiveData<GameScreenState> = _screenState
@@ -34,6 +38,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _latestAnnouncement = MutableLiveData("Waiting to start")
     val latestAnnouncement: LiveData<String> = _latestAnnouncement
+
+    private val _speechAnnouncement = MutableLiveData<String?>(null)
+    val speechAnnouncement: LiveData<String?> = _speechAnnouncement
 
     private val _lastRoundResult = MutableLiveData<RoundResult?>(null)
     val lastRoundResult: LiveData<RoundResult?> = _lastRoundResult
@@ -64,6 +71,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
         gameLoop.onAnnouncementRequested = { text ->
             _latestAnnouncement.postValue(text)
+            _speechAnnouncement.postValue(text)
         }
 
         gameLoop.onRoundEnded = { result ->
@@ -76,43 +84,53 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _lastRoundResult.postValue(result)
             _activeLane.postValue(null)
             _activeTargetLabel.postValue(if (result.canceled) "Round stopped" else "Round finished")
+            _speechAnnouncement.postValue(null)
             _screenState.postValue(if (result.canceled) GameScreenState.HOME else GameScreenState.ROUND_RESULTS)
         }
     }
 
     fun startDefaultRound() {
+        cancelPendingRoundStart()
         _score.value = 0
         _streak.value = 0
-        _latestAnnouncement.value = "Get ready"
-        _activeTargetLabel.value = "Get ready"
+        _latestAnnouncement.value = "Ready?"
+        _activeTargetLabel.value = "Ready?"
         _lastRoundResult.value = null
         _currentMoleId.value = 0
         _screenState.value = GameScreenState.GAMEPLAY
+        _speechAnnouncement.value = "Ready?"
 
-        gameLoop.startRound(
-            GameLoop.Options(
-                modeId = "grade1Letters",
-                durationSeconds = 30,
-                inputMode = _selectedInputMode.value ?: InputMode.STANDARD,
-                difficulty = Difficulty.NORMAL,
-                speakBrailleDots = false,
-                characterEcho = true,
-                timerMusicEnabled = true,
-                spatialMoleMappingEnabled = true,
-            )
+        val roundOptions = GameLoop.Options(
+            modeId = "grade1Letters",
+            durationSeconds = 30,
+            inputMode = _selectedInputMode.value ?: InputMode.STANDARD,
+            difficulty = Difficulty.NORMAL,
+            speakBrailleDots = false,
+            characterEcho = true,
+            timerMusicEnabled = true,
+            spatialMoleMappingEnabled = true,
         )
+        val startRoundRunnable = Runnable {
+            pendingRoundStart = null
+            gameLoop.startRound(roundOptions)
+        }
+        pendingRoundStart = startRoundRunnable
+        mainHandler.postDelayed(startRoundRunnable, ROUND_START_DELAY_MS)
     }
 
     fun finishRound() {
+        cancelPendingRoundStart()
         gameLoop.finishRoundEarly()
     }
 
     fun returnHome() {
+        cancelPendingRoundStart()
         _lastRoundResult.value = null
         _latestAnnouncement.value = "Waiting to start"
         _activeTargetLabel.value = "Waiting to start"
         _activeLane.value = null
         _currentMoleId.value = 0
+        _speechAnnouncement.value = null
         _screenState.value = GameScreenState.HOME
     }
 
@@ -157,7 +175,18 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
+        cancelPendingRoundStart()
+        _speechAnnouncement.value = null
         gameLoop.shutdown()
         super.onCleared()
+    }
+
+    private fun cancelPendingRoundStart() {
+        pendingRoundStart?.let(mainHandler::removeCallbacks)
+        pendingRoundStart = null
+    }
+
+    companion object {
+        private const val ROUND_START_DELAY_MS = 1_100L
     }
 }
